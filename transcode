@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# vim: set noexpandtab tabstop=4 shiftwidth=4:
+
+CONCURRENCY=8
+TARGET="../mp3s"
+
+
+# ------------------------------------------------------------------------------
+
+shopt -s globstar
+# reset IFS to protect against filenames with spaces fuckin my shit up
+IFS="\n\t"
+
+
+if [ ! -d "$TARGET" ] ; then
+	mkdir -p "$TARGET"
+	echo "Created destination directory $TARGET"
+fi
+
+function encode() {
+	shasum -a 256 "$1" | cut -d" " -f1
+}
+
+function transcode_to_mp3() {
+	NAME=$(encode "$1")
+	OUTPUT="$TARGET/$NAME.mp3"
+	if [ ! -f "$OUTPUT" ] ; then
+		echo "Transcoding $1 --> $OUTPUT"
+		ffmpeg -loglevel panic -i "$1" -threads $CONCURRENCY -acodec libmp3lame -b:a 320k "$OUTPUT"
+	fi
+}
+
+function copy_as_is() {
+	NAME=$(encode "$1")
+	OUTPUT="$TARGET/$NAME.mp3"
+	if [ ! -f "$OUTPUT" ] ; then
+		echo "Copying $1 --> $OUTPUT"
+		cp "$1" "$OUTPUT"
+	fi
+}
+
+
+# ------------------------------------------------------------------------------
+
+for FILE in `ls **/*.flac` ; do
+	transcode_to_mp3 "$FILE"
+done
+
+for FILE in `ls **/*.mp3` ; do
+	copy_as_is "$FILE"
+done
