@@ -25,7 +25,7 @@ class Transcoder
 			target = dest(f)
 			puts "Transcoding #{ f} -> #{ target }"
 			unless File.exist?(target)
-				`ffmpeg -loglevel panic -i "#{ f }" -threads #{ CONCURRENCY } -acodec libmp3lame -b:a 320k '#{ dest(f) }'`
+				`ffmpeg -loglevel panic -i "#{ f }" -threads #{ CONCURRENCY } -acodec libmp3lame -qscale:a 0 '#{ dest(f) }'`
 			end
 			@manifest[f] = target
 		end
