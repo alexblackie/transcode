@@ -11,7 +11,7 @@ class Transcoder
 
 	# @param output [String] path to the directory to store output MP3s
 	def initialize(target: DEFAULT_OUTPUT_DIR)
-		@flacs = Dir["**/*.flac"]
+		@masters = Dir["**/*.{flac,m4a}"]
 		@mp3s  = Dir["**/*.mp3"]
 		@existing = Dir["#{ target }/*.mp3"]
 		@target = target
@@ -20,7 +20,7 @@ class Transcoder
 	end
 
 	def transcode
-		@flacs.each do |f|
+		@masters.each do |f|
 			next if @manifest.has_key?(f)
 			target = dest(f)
 			puts "Transcoding #{ f} -> #{ target }"
